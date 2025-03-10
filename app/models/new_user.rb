@@ -4,6 +4,11 @@ class NewUser < ApplicationRecord
     validates :name, presence: true
     # after_commit :write_query_log, on: %i[ create update destroy ]
     # has_many :documents
+    has_one :balance_amount
+    has_many :transactions
+    has_many :documents
+    has_one :budget
+
 
     private
 
