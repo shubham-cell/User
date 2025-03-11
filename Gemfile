@@ -64,3 +64,5 @@ end
 
 gem "pg", "~> 1.5"
 gem 'devise'
+
+gem 'rspec-rails'
