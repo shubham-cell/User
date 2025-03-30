@@ -1,50 +1,29 @@
 class BudgetsController < ApplicationController
-    before_action :authenticate_user!
-    before_action :set_budget, only: [:show, :edit, :update, :destroy]
-
-    def index
-        @budgets = current_user.budgets
-    end
-
-    def show
-    end
-
+    before_action :require_login
+  
     def new
-        @budget = current_user.budgets.build
+      @budget = Budget.new
     end
-
+  
     def create
-        @budget = current_user.budgets.build(budget_params)
-        if @budget.save
-            redirect_to @budget, notice: 'Budget was successfully created.'
-        else
-            render :new
-        end
+     @budget = Budget.new(budget_params)
+      @budget.new_user_id = current_user.id
+      if @budget.save
+        flash[:notice] = "Budget successfully created!"
+        redirect_to new_transaction_path # Redirecting to transaction creation page
+      else
+        flash.now[:alert] = "Error creating budget"
+        render :new, status: :unprocessable_entity
+      end
     end
-
-    def edit
-    end
-
-    def update
-        if @budget.update(budget_params)
-            redirect_to @budget, notice: 'Budget was successfully updated.'
-        else
-            render :edit
-        end
-    end
-
-    def destroy
-        @budget.destroy
-        redirect_to budgets_url, notice: 'Budget was successfully destroyed.'
-    end
-
+  
     private
-
-    def set_budget
-        @budget = current_user.budgets.find(params[:id])
-    end
-
+  
     def budget_params
-        params.require(:budget).permit(:amount, :budget_categoty)
+      params.require(:budget).permit(:amount, :budget_category)
+    end
+  
+    def require_login
+      redirect_to login_path unless current_user
     end
 end

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Transaction</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+    
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        /* Remaining Balance */
+        p strong {
+            font-size: 18px;
+            color: #007bff;
+        }
+
+        /* Transaction Form */
+        .field {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .field label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Radio Button Group */
+        .radio-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .radio-input {
+            accent-color: #007bff;
+            cursor: pointer;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+
+        /* Back Button */
+        .back-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Create Transaction</h1>
+
+        <p>Remaining Balance: <strong><%= @user.balance_amount.amount %></strong></p>
+
+        <%= form_with model: @transaction, url: transactions_path, local: true do |form| %>
+            <div class="field">
+                <%= form.label :amount, "Transaction Amount" %>
+                <%= form.number_field :amount, required: true, min: 0, step: 0.01, class: "input-field" %>
+            </div>
+
+            <div class="field">
+                <%= form.label :description, "Transaction Description" %>
+                <%= form.text_field :description, required: true, class: "input-field" %>
+            </div>
+
+            <div class="field">
+                <label><strong>Transaction Type:</strong></label>
+                <div class="radio-group">
+                    <label>
+                        <%= form.radio_button :transaction_category, 0, checked: true, class: "radio-input" %> Credit
+                    </label>
+                    <label>
+                        <%= form.radio_button :transaction_category, 1, class: "radio-input" %> Debit
+                    </label>
+                </div>
+            </div>
+
+            <div class="actions">
+                <%= form.submit 'Create Transaction', class: "submit-btn" %>
+            </div>
+        <% end %>
+
+        <p><%= link_to "Back to Profile", new_user_path(@user), class: "back-btn" %></p>
+    </div>
+</body>
+</html>

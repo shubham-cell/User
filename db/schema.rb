@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_08_155720) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_16_105422) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -65,6 +65,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_08_155720) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["new_user_id"], name: "index_transactions_on_new_user_id"
+  end
+
+  create_table "user_meta_data", force: :cascade do |t|
+    t.string "name"
+    t.integer "age"
+    t.datetime "born_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
