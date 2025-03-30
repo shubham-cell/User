@@ -1,0 +1,2 @@
+class UserMetaData < ApplicationRecord
+end

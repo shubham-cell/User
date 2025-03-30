@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome !</h1>
+        <h2 class="user-name"><%= @user.name %></h2>
+
+        <% unless @budget.persisted? %>
+            <!-- Budget Creation Form -->
+            <div class="budget-container">
+                <h2>Create a Budget</h2>
+                <%= form_with model: @budget, url: budgets_path, local: true, html: { class: "budget-form" } do |form| %>
+
+                    <div class="field">
+                        <%= form.label :amount, "Budget Amount" %>
+                        <%= form.number_field :amount, required: true, min: 0, step: 0.01, class: "input-field" %>
+                    </div>
+
+                    <div class="field">
+                        <label><strong>Category:</strong></label>
+                        <div class="radio-group">
+                            <label>
+                                <%= form.radio_button :budget_category, 0, checked: true, class: "radio-input" %> Income
+                            </label>
+                            <label>
+                                <%= form.radio_button :budget_category, 1, class: "radio-input" %> Expense
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <%= form.submit 'Create Budget', class: "submit-btn" %>
+                    </div>
+                <% end %>
+            </div>
+        <% end %>
+
+        <p><%= link_to "Logout", logout_path, method: :delete, class: "logout-btn" %></p>
+    </div>
+
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        /* User Name Centered */
+        .user-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Budget Form */
+        .budget-container {
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .budget-form .field {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .budget-form label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Radio Button Group */
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .radio-input {
+            accent-color: #007bff;
+            cursor: pointer;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+
+        /* Logout Button */
+        .logout-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</body>
+</html>
