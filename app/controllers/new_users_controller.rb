@@ -14,7 +14,7 @@ class NewUsersController < ApplicationController
           @budget = Budget.new # If no budget, show the budget creation form
         end
     end
-      
+    
 
     def create
         @new_user = NewUser.new(user_params)
@@ -58,15 +58,4 @@ class NewUsersController < ApplicationController
         params.require(:new_user).permit(:name, :email, :password, :password_confirmation)
     end
 
-    def require_login
-        unless session[:user_id]
-          flash[:alert] = "You must be logged in to access this page"
-          redirect_to login_path
-        end
-      end
-    
-      def current_user
-        @current_user ||= NewUser.find_by(id: session[:user_id])  # Fetch logged-in user
-      end
-      
 end

@@ -7,6 +7,7 @@ class NewUser < ApplicationRecord
     has_one :balance_amount
     has_many :transactions
     has_many :documents
+    has_many :reports
     has_one :budget
 
 

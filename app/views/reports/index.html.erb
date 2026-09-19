@@ -1,0 +1,48 @@
+<% content_for :title, "Reports" %>
+
+<div class="page-header">
+  <div>
+    <h1>Transaction reports</h1>
+    <p class="lede">Generate Excel reports in the background with Sidekiq.</p>
+  </div>
+  <%= link_to "New report", new_report_path, class: "btn btn-primary" %>
+</div>
+
+<div class="card">
+  <% if @reports.any? %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date range</th>
+            <th>Status</th>
+            <th>Transactions</th>
+            <th>Requested</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @reports.each do |report| %>
+            <tr>
+              <td><%= report.start_date %> to <%= report.end_date %></td>
+              <td><span class="badge badge-<%= report.status %>"><%= report.status %></span></td>
+              <td><%= report.transaction_count %></td>
+              <td><%= report.created_at.strftime("%d %b %Y %H:%M") %></td>
+              <td>
+                <%= link_to "View", report_path(report), class: "btn btn-secondary" %>
+                <% if report.completed? && report.file.attached? %>
+                  <%= link_to "Download", download_report_path(report), class: "btn btn-success" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <p>No reports yet. Choose a date range to generate your first Excel export.</p>
+      <p><%= link_to "Create a report", new_report_path, class: "btn btn-primary" %></p>
+    </div>
+  <% end %>
+</div>

@@ -1,144 +1,57 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Your Transactions</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
-    <%= stylesheet_link_tag 'application', media: 'all' %>
+<% content_for :title, "Your transactions" %>
 
-    <style>
-        /* General Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<div class="page-header">
+  <div>
+    <h1>Your transactions</h1>
+    <p class="lede">Track credits, debits, and remaining budget.</p>
+  </div>
+  <div class="actions-row">
+    <%= link_to "Create transaction", new_transaction_path, class: "btn btn-success" %>
+    <%= link_to "Generate report", new_report_path, class: "btn btn-primary" %>
+  </div>
+</div>
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            width: 100vw;
-        }
+<div class="stats-row">
+  <div class="stat-card">
+    <span>Original budget</span>
+    <strong><%= @user.budget&.amount || 0 %></strong>
+  </div>
+  <div class="stat-card">
+    <span>Remaining balance</span>
+    <strong><%= @user.balance_amount&.amount || 0 %></strong>
+  </div>
+</div>
 
-        .container {
-            background: white;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            width: 100%;
-            height: 100%;
-            max-width: 100vw;
-            max-height: 100vh;
-            overflow: auto;
-            text-align: center;
-            padding: 40px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        /* Remaining Balance */
-        p strong {
-            font-size: 20px;
-            color: #007bff;
-        }
-
-        /* Transactions Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: #fff;
-        }
-
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        /* Buttons */
-        .submit-btn, .logout-btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            text-decoration: none;
-            color: white;
-            transition: background 0.3s;
-        }
-
-        .submit-btn {
-            background-color: #28a745;
-        }
-
-        .submit-btn:hover {
-            background-color: #218838;
-        }
-
-        .logout-btn {
-            background-color: #dc3545;
-        }
-
-        .logout-btn:hover {
-            background-color: #c82333;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Your Transactions</h1>
-        <p>Original Budget: <strong><%= @user.budget.amount %></strong></p>
-        <p>Remaining Balance: <strong><%= @user.balance_amount.amount %></strong></p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Amount</th>
-                    <th>Description</th>
-                    <th>Date</th>
-                    <th> Transaction Type</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% @transactions.each do |transaction| %>
-                    <tr>
-                        <td><%= transaction.amount %></td>
-                        <td><%= transaction.description %></td>
-                        <td><%= transaction.created_at.strftime("%d-%m-%Y") %></td>
-                        <td style="color: <%= transaction.transaction_category == 0 ? 'green' : 'red' %>;">
-                            <%= transaction.transaction_category == 0 ? "Credit" : "Debit" %>
-                        </td>
-                    </tr>
-                <% end %>
-            </tbody>
-        </table>
-
-        <p><%= link_to "Create Transaction", new_transaction_path, class: "submit-btn" %></p>
-        <p><%= link_to "Logout", logout_path, method: :delete, class: "logout-btn" %></p>
+<div class="card">
+  <% if @transactions.any? %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @transactions.each do |transaction| %>
+            <% credit = transaction.transaction_category.to_i.zero? %>
+            <tr>
+              <td class="<%= credit ? 'amount-credit' : 'amount-debit' %>"><%= transaction.amount %></td>
+              <td><%= transaction.description %></td>
+              <td><%= transaction.created_at.strftime("%d-%m-%Y") %></td>
+              <td class="<%= credit ? 'amount-credit' : 'amount-debit' %>">
+                <%= credit ? "Credit" : "Debit" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
-</body>
-</html>
+  <% else %>
+    <div class="empty-state">
+      <p>No transactions yet. Create one to start tracking your budget.</p>
+    </div>
+  <% end %>
+</div>

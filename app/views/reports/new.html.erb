@@ -1,0 +1,27 @@
+<% content_for :title, "New report" %>
+
+<div class="page-header">
+  <div>
+    <h1>Generate a report</h1>
+    <p class="lede">We’ll queue a Sidekiq job and build an Excel file of your transactions.</p>
+  </div>
+</div>
+
+<div class="card">
+  <%= form_with model: @report, url: reports_path, local: true do |form| %>
+    <div class="field">
+      <%= form.label :start_date, "Start date" %>
+      <%= form.date_field :start_date, required: true, class: "input-field" %>
+    </div>
+
+    <div class="field">
+      <%= form.label :end_date, "End date" %>
+      <%= form.date_field :end_date, required: true, class: "input-field" %>
+    </div>
+
+    <div class="form-actions">
+      <%= form.submit "Queue report", class: "btn btn-primary" %>
+      <%= link_to "Cancel", reports_path, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>
