@@ -23,7 +23,4 @@ class BudgetsController < ApplicationController
       params.require(:budget).permit(:amount, :budget_category)
     end
   
-    def require_login
-      redirect_to login_path unless current_user
-    end
 end

@@ -1,0 +1,40 @@
+<% content_for :title, "Report #{@report.id}" %>
+
+<% if @report.pending? || @report.processing? %>
+  <div data-controller="reload" data-reload-interval-value="3000"></div>
+<% end %>
+
+<div class="page-header">
+  <div>
+    <h1>Report #<%= @report.id %></h1>
+    <p class="lede">Excel export for <%= @report.start_date %> to <%= @report.end_date %>.</p>
+  </div>
+  <%= link_to "All reports", reports_path, class: "btn btn-secondary" %>
+</div>
+
+<div class="card">
+  <div class="report-meta">
+    <div class="stat-card">
+      <span>Status</span>
+      <strong class="badge badge-<%= @report.status %>"><%= @report.status %></strong>
+    </div>
+    <div class="stat-card">
+      <span>Transactions</span>
+      <strong><%= @report.transaction_count %></strong>
+    </div>
+    <div class="stat-card">
+      <span>Requested</span>
+      <strong><%= @report.created_at.strftime("%d %b %Y %H:%M") %></strong>
+    </div>
+  </div>
+
+  <% if @report.pending? || @report.processing? %>
+    <p class="muted">Generating in the background. This page refreshes automatically.</p>
+  <% elsif @report.failed? %>
+    <p class="flash flash-error"><%= @report.error_message.presence || "Report generation failed." %></p>
+  <% elsif @report.completed? && @report.file.attached? %>
+    <p><%= link_to "Download Excel file", download_report_path(@report), class: "btn btn-success" %></p>
+  <% else %>
+    <p class="muted">The file is not available.</p>
+  <% end %>
+</div>

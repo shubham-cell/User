@@ -1,4 +1,5 @@
 class TransactionsController < ApplicationController
+    before_action :require_login
     before_action :set_transaction, only: [:show, :edit, :update, :destroy]
     before_action :set_budget, only: [:index]
     before_action :set_user
