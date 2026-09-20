@@ -66,6 +66,8 @@ group :test do
 end
 
 gem "pg", "~> 1.5"
-gem 'devise'
+gem "devise"
 
-gem 'rspec-rails'
+gem "rspec-rails"
+gem "sidekiq", "~> 7.3"
+gem "caxlsx", "~> 4.1"
