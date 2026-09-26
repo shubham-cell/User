@@ -1,57 +1,141 @@
-<% content_for :title, "Your transactions" %>
+<% content_for :title, "Dashboard" %>
 
-<div class="page-header">
-  <div>
-    <h1>Your transactions</h1>
-    <p class="lede">Track credits, debits, and remaining budget.</p>
+<div
+  class="dashboard"
+  data-controller="dashboard"
+  data-dashboard-active-value="all"
+>
+  <div class="page-header dashboard-header">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h1>Welcome back, <%= @user.name %></h1>
+      <p class="lede">Here’s how your budget and cash flow look right now.</p>
+    </div>
+    <div class="actions-row">
+      <%= link_to "New transaction", new_transaction_path, class: "btn btn-success" %>
+      <%= link_to "Generate report", new_report_path, class: "btn btn-primary" %>
+    </div>
   </div>
-  <div class="actions-row">
-    <%= link_to "Create transaction", new_transaction_path, class: "btn btn-success" %>
-    <%= link_to "Generate report", new_report_path, class: "btn btn-primary" %>
-  </div>
-</div>
 
-<div class="stats-row">
-  <div class="stat-card">
-    <span>Original budget</span>
-    <strong><%= @user.budget&.amount || 0 %></strong>
-  </div>
-  <div class="stat-card">
-    <span>Remaining balance</span>
-    <strong><%= @user.balance_amount&.amount || 0 %></strong>
-  </div>
-</div>
+  <section class="stats-grid">
+    <article class="stat-tile stat-tile-budget">
+      <span>Original budget</span>
+      <strong><%= number_to_currency(@budget_amount, unit: "₹", precision: 0) %></strong>
+    </article>
+    <article class="stat-tile stat-tile-balance">
+      <span>Remaining balance</span>
+      <strong><%= number_to_currency(@remaining_balance, unit: "₹", precision: 0) %></strong>
+    </article>
+    <article class="stat-tile stat-tile-credit">
+      <span>Total credit</span>
+      <strong><%= number_to_currency(@credit_total, unit: "₹", precision: 0) %></strong>
+    </article>
+    <article class="stat-tile stat-tile-debit">
+      <span>Total debit</span>
+      <strong><%= number_to_currency(@debit_total, unit: "₹", precision: 0) %></strong>
+    </article>
+  </section>
 
-<div class="card">
-  <% if @transactions.any? %>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Amount</th>
-            <th>Description</th>
-            <th>Date</th>
-            <th>Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @transactions.each do |transaction| %>
-            <% credit = transaction.transaction_category.to_i.zero? %>
-            <tr>
-              <td class="<%= credit ? 'amount-credit' : 'amount-debit' %>"><%= transaction.amount %></td>
-              <td><%= transaction.description %></td>
-              <td><%= transaction.created_at.strftime("%d-%m-%Y") %></td>
-              <td class="<%= credit ? 'amount-credit' : 'amount-debit' %>">
+  <section class="card budget-pulse">
+    <div class="budget-pulse-head">
+      <div>
+        <h2>Budget usage</h2>
+        <p class="muted"><%= @transaction_count %> transactions tracked so far</p>
+      </div>
+      <strong class="budget-pulse-percent"><%= @budget_used_percent %>%</strong>
+    </div>
+
+    <div
+      class="meter"
+      data-dashboard-target="meter"
+      data-percent="<%= @budget_used_percent %>"
+      aria-label="Budget used <%= @budget_used_percent %>%"
+    >
+      <div class="meter-bar <%= @budget_used_percent >= 90 ? 'meter-bar-hot' : '' %>" data-dashboard-target="bar"></div>
+    </div>
+
+    <div class="quick-actions">
+      <%= link_to new_transaction_path, class: "quick-action" do %>
+        <span class="quick-action-label">Add money movement</span>
+        <span class="quick-action-hint">Credit or debit</span>
+      <% end %>
+      <%= link_to reports_path, class: "quick-action" do %>
+        <span class="quick-action-label">View reports</span>
+        <span class="quick-action-hint">Export Excel history</span>
+      <% end %>
+      <%= link_to new_report_path, class: "quick-action" do %>
+        <span class="quick-action-label">Build a report</span>
+        <span class="quick-action-hint">Pick a date range</span>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="card activity-panel">
+    <div class="activity-toolbar">
+      <div>
+        <h2>Activity</h2>
+        <p class="muted">
+          Showing <span data-dashboard-target="count"><%= @transaction_count %></span> of <%= @transaction_count %>
+        </p>
+      </div>
+
+      <div class="activity-controls">
+        <div class="filter-pills" role="tablist" aria-label="Filter transactions">
+          <button type="button" class="filter-pill is-active" data-dashboard-target="pill" data-filter="all" data-action="click->dashboard#select">All</button>
+          <button type="button" class="filter-pill" data-dashboard-target="pill" data-filter="credit" data-action="click->dashboard#select">Credit</button>
+          <button type="button" class="filter-pill" data-dashboard-target="pill" data-filter="debit" data-action="click->dashboard#select">Debit</button>
+        </div>
+
+        <label class="search-field">
+          <span class="visually-hidden">Search transactions</span>
+          <input
+            type="search"
+            placeholder="Search description…"
+            class="input-field search-input"
+            data-dashboard-target="search"
+            data-action="input->dashboard#search"
+          >
+        </label>
+      </div>
+    </div>
+
+    <% if @transactions.any? %>
+      <div class="activity-list">
+        <% @transactions.each do |transaction| %>
+          <% credit = transaction.transaction_category.to_i.zero? %>
+          <article
+            class="activity-row"
+            data-dashboard-target="row"
+            data-type="<%= credit ? 'credit' : 'debit' %>"
+            data-search="<%= "#{transaction.description} #{transaction.amount}".downcase %>"
+          >
+            <div class="activity-main">
+              <span class="activity-dot <%= credit ? 'dot-credit' : 'dot-debit' %>"></span>
+              <div>
+                <strong><%= transaction.description.presence || "Untitled transaction" %></strong>
+                <p class="muted"><%= transaction.created_at.strftime("%d %b %Y · %I:%M %p") %></p>
+              </div>
+            </div>
+            <div class="activity-meta">
+              <span class="badge <%= credit ? 'badge-completed' : 'badge-failed' %>">
                 <%= credit ? "Credit" : "Debit" %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  <% else %>
-    <div class="empty-state">
-      <p>No transactions yet. Create one to start tracking your budget.</p>
-    </div>
-  <% end %>
+              </span>
+              <strong class="<%= credit ? 'amount-credit' : 'amount-debit' %>">
+                <%= credit ? "+" : "-" %><%= number_to_currency(transaction.amount, unit: "₹", precision: 0) %>
+              </strong>
+            </div>
+          </article>
+        <% end %>
+      </div>
+
+      <div class="empty-state activity-empty is-hidden" data-dashboard-target="empty">
+        <p>No transactions match this filter.</p>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <p>No transactions yet. Create one to start tracking your budget.</p>
+        <%= link_to "Create your first transaction", new_transaction_path, class: "btn btn-success" %>
+      </div>
+    <% end %>
+  </section>
 </div>

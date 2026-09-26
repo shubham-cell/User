@@ -18,7 +18,14 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body
+    data-authenticated="<%= logged_in? %>"
+    <% if logged_in? %>
+      data-controller="idle-timeout"
+      data-idle-timeout-seconds-value="<%= session_timeout_seconds %>"
+      data-idle-timeout-logout-url-value="<%= logout_path(reason: 'idle') %>"
+    <% end %>
+  >
     <div class="app-shell">
       <% if logged_in? %>
         <header class="topbar">
@@ -26,7 +33,7 @@
             <%= link_to "Ledger", transactions_path, class: "brand-link" %>
           </div>
           <nav class="topbar-nav">
-            <%= link_to "Transactions", transactions_path, class: "nav-link" %>
+            <%= link_to "Dashboard", transactions_path, class: "nav-link" %>
             <%= link_to "New transaction", new_transaction_path, class: "nav-link" %>
             <%= link_to "Reports", reports_path, class: "nav-link" %>
             <%= link_to "Logout", logout_path, class: "nav-link nav-link-danger" %>
