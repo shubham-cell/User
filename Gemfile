@@ -67,6 +67,7 @@ end
 
 gem "pg", "~> 1.5"
 gem "devise"
+gem "warden"
 
 gem "rspec-rails"
 gem "sidekiq", "~> 7.3"

@@ -1,19 +1,25 @@
 <% content_for :title, "Login" %>
 
-<div class="auth-wrap">
+<div
+  class="auth-wrap"
+  data-controller="login"
+  data-login-url-value="<%= login_path %>"
+>
   <div class="auth-card">
     <h1>Welcome back</h1>
-    <p class="lede">Sign in to manage your budget and reports.</p>
+    <p class="lede">Sign in with a Bearer token after authentication.</p>
 
-    <%= form_with(url: login_path, local: true) do |form| %>
+    <p class="flash flash-error" data-login-target="error" hidden></p>
+
+    <%= form_with(url: login_path, data: { action: "submit->login#submit" }) do |form| %>
       <div class="field">
         <%= form.label :email %>
-        <%= form.email_field :email, required: true %>
+        <%= form.email_field :email, required: true, data: { login_target: "email" } %>
       </div>
 
       <div class="field">
         <%= form.label :password %>
-        <%= form.password_field :password, required: true %>
+        <%= form.password_field :password, required: true, data: { login_target: "password" } %>
       </div>
 
       <div class="actions">

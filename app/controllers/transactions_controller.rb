@@ -1,75 +1,73 @@
 class TransactionsController < ApplicationController
-    before_action :require_login
-    before_action :set_transaction, only: [:show, :edit, :update, :destroy]
-    before_action :set_budget, only: [:index]
-    before_action :set_user
+  before_action :require_login
+  before_action :set_transaction, only: [:show, :edit, :update, :destroy]
+  before_action :set_budget, only: [:index]
+  before_action :set_user
 
-    # GET /transactions
-    def index
-        @transactions = current_user.transactions
-        respond_to do |format|
-        format.html # This will look for index.html.erb (default)
-        format.json { render json: @transactions }
-        end
+  def index
+    @transactions = current_user.transactions.order(created_at: :desc)
+    @budget_amount = current_user.budget&.amount.to_f
+    @remaining_balance = current_user.balance_amount&.amount.to_f
+    @credit_total = @transactions.select { |t| t.transaction_category.to_i.zero? }.sum { |t| t.amount.to_f }
+    @debit_total = @transactions.reject { |t| t.transaction_category.to_i.zero? }.sum { |t| t.amount.to_f }
+    @transaction_count = @transactions.size
+    spent = [@budget_amount - @remaining_balance, 0].max
+    @budget_used_percent = @budget_amount.positive? ? ((spent / @budget_amount) * 100).round(1) : 0
+
+    respond_to do |format|
+      format.html
+      format.json { render json: @transactions }
     end
+  end
 
-    # GET /transactions/1
-    def show
+  def show
+  end
+
+  def new
+    @transaction = Transaction.new
+  end
+
+  def edit
+  end
+
+  def create
+    @transaction = @user.transactions.new(transaction_params)
+    if @transaction.save
+      redirect_to transactions_path, notice: "Transaction was successfully created."
+    else
+      render :new, status: :unprocessable_entity
     end
+  end
 
-    # GET /transactions/new
-    def new
-        @transaction = Transaction.new
+  def update
+    if @transaction.update(transaction_params)
+      redirect_to @transaction, notice: "Transaction was successfully updated."
+    else
+      render :edit
     end
+  end
 
-    # GET /transactions/1/edit
-    def edit
-    end
+  def destroy
+    @transaction.destroy
+    redirect_to transactions_url, notice: "Transaction was successfully destroyed."
+  end
 
-    # POST /transactions
-    def create
-        @transaction = @user.transactions.new(transaction_params)
-        if @transaction.save
-            redirect_to transactions_path, notice: 'Transaction was successfully created.'
-        else
-            render :new, status: :unprocessable_entity
-        end
-    end
+  private
 
-    # PATCH/PUT /transactions/1
-    def update
-        if @transaction.update(transaction_params)
-            redirect_to @transaction, notice: 'Transaction was successfully updated.'
-        else
-            render :edit
-        end
-    end
+  def set_transaction
+    @transaction = Transaction.find(params[:id])
+  end
 
-    # DELETE /transactions/1
-    def destroy
-        @transaction.destroy
-        redirect_to transactions_url, notice: 'Transaction was successfully destroyed.'
-    end
+  def transaction_params
+    params.require(:transaction).permit(:amount, :description, :transaction_category)
+  end
 
-    private
-        # Use callbacks to share common setup or constraints between actions.
-        def set_transaction
-            @transaction = Transaction.find(params[:id])
-        end
+  def set_budget
+    @budget = current_user.budget
+    redirect_to new_budget_path, alert: "Please create a budget first" if @budget.nil?
+  end
 
-        # Only allow a list of trusted parameters through.
-        def transaction_params
-            params.require(:transaction).permit(:amount, :description, :transaction_category) # Replace with actual attributes
-        end
-
-        def set_budget
-            @budget = current_user.budget
-        
-            # Redirect to budget creation page if no budget exists
-            redirect_to new_budget_path, alert: "Please create a budget first" if @budget.nil?
-        end
-
-        def set_user
-            @user = current_user
-        end
+  def set_user
+    @user = current_user
+  end
 end
